@@ -39,11 +39,15 @@ class Metagenomic16SRepresentation:
 
         data = np.zeros((len(self.fasta_files), len(self.cpe_vocab))).astype(np.float64)
 
-        # multi processing extraction of k-mer distributions
+        # multi processing extraction of cpe distributions
+        t_steps=[]
+        s_steps=[]
         pool = Pool(processes=self.num_p)
-        for ky, v in tqdm.tqdm(pool.imap_unordered(self.get_cpe_distribution, self.fasta_files, chunksize=1),
+        for ky, (v,t,s) in tqdm.tqdm(pool.imap_unordered(self.get_cpe_distribution, self.fasta_files, chunksize=1),
                                total=len(self.fasta_files)):
             data[self.indexing[ky], :] = v
+            t_steps.append(t)
+            s_steps.append(s)
 
         # normalize the frequencies
         data = normalize(data, axis=1, norm='l1')
@@ -52,6 +56,8 @@ class Metagenomic16SRepresentation:
         if save:
             FileUtility.save_sparse_csr(save, data)
             FileUtility.save_list(save+'_meta',self.fasta_files)
+            FileUtility.save_list(save+'_log',[': '.join(['mean_time', str(np.mean(t_steps))]), ': '.join(['std_time', str(np.std(t_steps))]), ': '.join(['mean_size', str(np.mean(s_steps))]), ': '.join(['std_size', str(np.std(s_steps))])])
+
         return data
     
     def train_cpe_transformation(self, size, sample_size, directory):
@@ -79,6 +85,7 @@ class Metagenomic16SRepresentation:
         return file_name, random.sample(corpus, min(sample_size,len(corpus))) 
     
     def get_cpe_distribution(self, file_name):
+        start = timeit.timeit()
         corpus=[]
         if file_name[-1]=='q':
             for cur_record in SeqIO.parse(file_name, "fastq"):
@@ -86,12 +93,14 @@ class Metagenomic16SRepresentation:
         else:
             for cur_record in SeqIO.parse(file_name, "fasta"):
                 corpus.append(str(cur_record.seq).lower())
+        tot_size=len(corpus)
         if self.sampling_number==-1:
             random.shuffle(corpus)
         else:
             corpus = random.sample(corpus, min(self.sampling_number,len(corpus)))
         corpus=[self.CPE_Applier.segment(x) for x in corpus]
-        return file_name, np.sum(self.cpe_vectorizer.fit_transform(corpus).toarray(), axis=0)
+        end = timeit.timeit()
+        return file_name, (np.sum(self.vectorizer.fit_transform(corpus).toarray(), axis=0),end - start,tot_size)
 
     def generate_kmers_all(self, k, save=False):
         self.k=k
