@@ -1,8 +1,9 @@
 import sys
 sys.path.append('../')
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from file_utility import FileUtility
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_predict
+from utility.file_utility import FileUtility
 from sklearn.metrics import f1_score,confusion_matrix
+
 
 class CrossValidator(object):
     '''
@@ -46,8 +47,8 @@ class KFoldCrossVal(CrossValidator):
         label_set=list(set(self.Y))
         # fitting
         self.greed_search.fit(X=self.X, y=self.Y)
-        Y_predicted=self.greed_search.best_estimator_.predict(self.X)
-        conf=confusion_matrix(self.Y,Y_predicted,labels=label_set)
+        y_predicted = cross_val_predict(self.greed_search.best_estimator_, self.X, self.Y)
+        conf=confusion_matrix(self.Y,y_predicted,labels=label_set)
         # save in file
         FileUtility.save_obj([label_set, conf, self.greed_search.best_score_, self.greed_search.best_estimator_, self.greed_search.cv_results_, self.greed_search.best_params_],file_name)
 
