@@ -1,3 +1,10 @@
+__author__ = "Ehsaneddin Asgari"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__maintainer__ = "Ehsaneddin Asgari"
+__email__ = "asgari@berkeley.edu ehsaneddin.asgari@helmholtz-hzi.de"
+__project__= "LLP - MicroPheno"
+
 import sys
 sys.path.append('../')
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_predict
@@ -50,6 +57,6 @@ class KFoldCrossVal(CrossValidator):
         y_predicted = cross_val_predict(self.greed_search.best_estimator_, self.X, self.Y)
         conf=confusion_matrix(self.Y,y_predicted,labels=label_set)
         # save in file
-        FileUtility.save_obj([label_set, conf, self.greed_search.best_score_, self.greed_search.best_estimator_, self.greed_search.cv_results_, self.greed_search.best_params_],file_name)
+        FileUtility.save_obj(file_name, [label_set, conf, self.greed_search.best_score_, self.greed_search.best_estimator_, self.greed_search.cv_results_, self.greed_search.best_params_, y_predicted])
 
 

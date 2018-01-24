@@ -1,5 +1,9 @@
 __author__ = "Ehsaneddin Asgari"
-__email__ = "asgari@berkeley.edu"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__maintainer__ = "Ehsaneddin Asgari"
+__email__ = "asgari@berkeley.edu ehsaneddin.asgari@helmholtz-hzi.de"
+__project__= "LLP - MicroPheno"
 import codecs
 import numpy as np
 from scipy import sparse
@@ -23,7 +27,7 @@ class FileUtility(object):
         return fasta_files, mapping
 
     @staticmethod
-    def save_obj(value, filename):
+    def save_obj(filename, value):
         with open( filename + '.pickle', 'wb') as f:
             pickle.dump(value, f)
 

@@ -1,3 +1,10 @@
+__author__ = "Ehsaneddin Asgari"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__maintainer__ = "Ehsaneddin Asgari"
+__email__ = "asgari@berkeley.edu ehsaneddin.asgari@helmholtz-hzi.de"
+__project__= "LLP - MicroPheno"
+
 import sys
 sys.path.append('../')
 from sklearn.utils import resample
@@ -7,11 +14,11 @@ import itertools
 import codecs
 import random
 import numpy as np
-from math_utility import get_kl_rows
+from utility.math_utility import get_kl_rows
 import matplotlib.pyplot as plt
 from IPython import display
 from Bio import SeqIO
-from file_utility import FileUtility
+from utility.file_utility import FileUtility
 
 class BootStrapping(object):
     def __init__(self, input_dir, output_dir, sampling_sizes=[10,20,50,100,200,500,1000,2000,5000,10000], n_resamples=10, seqtype='fasta', N_files=10):
@@ -41,14 +48,13 @@ class BootStrapping(object):
         # error_tot's are std of distances between k-mer distribution resamples and the whole sample k-mer distribution
         self.error_tot=dict()
 
-
     def add_kmer_sampling(self, k_mer):
         '''
         :param k_mer: k_mer bootstrapping to add in the analysis
         :return:
         '''
         self.x[k_mer], self.y[k_mer], self.error[k_mer], self.y_tot[k_mer], self.error_tot[k_mer] = self.get_stats_samples(k_mer)
-
+    
     def get_stats_samples(self, k_mer):
         x=[]
         y=[]
@@ -112,45 +118,47 @@ class BootStrapping(object):
         return vect
 
     def _plotting(self, file_name):
-        fig = plt.figure()
-        plt.subplot(211)
+        figure(figsize=(20, 10))
+        matplotlib.rcParams['mathtext.fontset'] = 'stix'
+        matplotlib.rcParams['font.family'] = 'STIXGeneral'
+        matplotlib.pyplot.title(r'ABC123 vs $\mathrm{ABC123}^{123}$')
+        matplotlib.rcParams['mathtext.fontset'] = 'custom'
+        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        matplotlib.pyplot.title(r'ABC123 vs $\mathrm{ABC123}^{123}$')
+
+        ax=subplot(121)
         k_mers=list(self.x.keys())
         legend_vals=[]
         for k in k_mers:
-            plt.plot(self.x[k], np.array(self.y[k]))
-            plt.fill_between(self.x[k], np.array(self.y[k])-np.array(self.error[k]),np.array(self.y[k])+np.array(self.error[k]),alpha=0.2, linewidth=4, linestyle='dashdot', antialiased=True)
+            ax.plot(self.x[k], np.array(self.y[k]))
+            ax.fill_between(self.x[k], np.array(self.y[k])-np.array(self.error[k]),np.array(self.y[k])+np.array(self.error[k]),alpha=0.2, linewidth=4, linestyle='dashdot', antialiased=True)
             legend_vals.append('k = '+str(k))
-        plt.legend(legend_vals, loc='upper right')
-        plt.xlabel('Sequence sampling size')
-        plt.ylabel('KL-divergence')
-        plt.xlim([0,10000])
-        plt.ylim([0,10])
-        plt.title('The averaged pair-wise KL-divergences between k-mer disributions \n in 10 resamples with respect  to the sampling size', fontsize=36)
+        ax.legend(legend_vals, loc='upper right', prop={'size': 30},ncol=1)
+        xlabel('Resample size (N)', fontsize=24)
+        ylabel(r'$\bar{D_S}(N,k)$', fontsize=24)
+        xlim([0,10000])
+        ylim([0,10])
+        title(r'(i) \textbf{Self-inconsistency $\bar{D_S}$,} with respect to sample size (N)\\ demonstrated for different k values in the body-site dataset', fontsize=24,y=1.01)
 
-        plt.subplot(212)
+        ax=subplot(122)
 
         k_mers=list(self.x.keys())
         legend_vals=[]
         for k in k_mers:
-            plt.plot(self.x[k], np.array(self.y_tot[k]))
-            plt.fill_between(self.x[k], np.array(self.y_tot[k])-np.array(self.error_tot[k]), np.array(self.y_tot[k])+np.array(self.error_tot[k]),alpha=0.2, linewidth=4, linestyle='dashdot', antialiased=True)
+            ax.plot(self.x[k], np.array(self.y_tot[k]))
+            ax.fill_between(self.x[k], np.array(self.y_tot[k])-np.array(self.error_tot[k]), np.array(self.y_tot[k])+np.array(self.error_tot[k]),alpha=0.2, linewidth=4, linestyle='dashdot', antialiased=True)
             legend_vals.append('k = '+str(k))
-        plt.legend(legend_vals, loc='upper right')
-        plt.xlim([0,10000])
-        plt.ylim([0,0.1])
-        plt.xlabel('Sequence sampling size')
-        plt.ylabel('KL-divergence')
-        plt.title('The averaged KL-divergences between k-mer disributions in 10 resamples \n and the whole data usage with respect to the sampling size', fontsize=36)
+        ax.legend(legend_vals, loc='upper right', prop={'size': 30},ncol=1)
+        xlim([0,10000])
+        ylim([0,0.1])
+        plt.rc('text', usetex=True)
+        xlabel('Resample size (N)', fontsize=24)
+        ylabel(r'$\bar{D_R}(N,k)$', fontsize=24)
+        title(r'(ii) \textbf{Unrepresentativeness $\bar{D_R}$,} with respect to sample size (N)\\ demonstrated for different k values in the body-site dataset', fontsize=24, y=1.01)
+        plt.tight_layout()
 
-        params = {
-           'legend.fontsize': 36,
-           'xtick.labelsize': 36,
-           'ytick.labelsize': 36,
-           'text.usetex': True,
-           }
-        plt.rcParams.update(params)
-        plt.rc('font', family='serif', serif='Times')
-        fig.tight_layout()
         FileUtility.save_obj([self.x, self.y, self.error,self.y_tot,self.error_tot],'paper_figs/'+file_name+'.obj')
         plt.savefig('paper_figs/'+file_name+'.pdf')
 
