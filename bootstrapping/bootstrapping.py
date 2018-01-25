@@ -16,9 +16,10 @@ import itertools
 import random
 import numpy as np
 from utility.math_utility import get_kl_rows
-import matplotlib.pyplot as plt
+from matplotlib.pyplot import *
 from Bio import SeqIO
 from utility.file_utility import FileUtility
+import matplotlib.pyplot as plt
 
 
 class BootStrapping(object):
@@ -132,7 +133,7 @@ class BootStrapping(object):
                 normalize(np.sum(vectorizer.fit_transform(rs).toarray(), axis=0).reshape(1, -1), axis=1, norm='l1')[0])
         return vect
 
-    def _plotting(self, file_name):
+    def plotting(self, file_name, dataset_name):
         '''
         Plotting
         :param file_name:
@@ -147,6 +148,7 @@ class BootStrapping(object):
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.pyplot.title(r'ABC123 vs $\mathrm{ABC123}^{123}$')
+        plt.rc('text', usetex=True)
 
         ax = subplot(121)
         k_mers = list(self.N_axis.keys())
@@ -163,7 +165,7 @@ class BootStrapping(object):
         xlim([0, 10000])
         ylim([0, 10])
         title(
-            r'(i) \textbf{Self-inconsistency $\bar{D_S}$,} with respect to sample size (N)\\ demonstrated for different k values in the  dataset',
+            r'(i) \textbf{Self-inconsistency $\bar{D_S}$,} with respect to sample size (N)\\ demonstrated for different k values in the '+dataset_name+' dataset',
             fontsize=24, y=1.01)
 
         ax = subplot(122)
@@ -179,20 +181,30 @@ class BootStrapping(object):
         ax.legend(legend_vals, loc='upper right', prop={'size': 30}, ncol=1)
         xlim([0, 10000])
         ylim([0, 0.1])
-        plt.rc('text', usetex=True)
         xlabel('Resample size (N)', fontsize=24)
         ylabel(r'$\bar{D_R}(N,k)$', fontsize=24)
         title(
-            r'(ii) \textbf{Unrepresentativeness $\bar{D_R}$,} with respect to sample size (N)\\ demonstrated for different k values in the dataset',
+            r'(ii) \textbf{Unrepresentativeness $\bar{D_R}$,} with respect to sample size (N)\\ demonstrated for different k values in the '+dataset_name+' dataset',
             fontsize=24, y=1.01)
         plt.tight_layout()
+        plt.savefig(self.output_dir + file_name + '.pdf')
 
-        FileUtility.save_obj([self.N_axis, self.D_S, self.std_D_S, self.D_R, self.std_D_R],
-                             'paper_figs/' + file_name + '.obj')
-        plt.savefig('paper_figs/' + file_name + '.pdf')
+    def save_me(self, file_name):
+        '''
+        :param file_name: file name to be saved
+        :return:
+        '''
+        FileUtility.save_obj(self.output_dir + file_name, self)
+
+    @staticmethod
+    def load_precalculated(file_path):
+        return FileUtility.load_obj(file_path)
 
 
 if __name__ == '__main__':
+    '''
+        test-case
+    '''
     files = FileUtility.recursive_glob(
         '/mounts/data/proj/asgari/github_repos/microbiomephenotype/data_config/bodysites/', '*.txt')
     list_of_files = []

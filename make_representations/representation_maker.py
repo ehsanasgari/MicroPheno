@@ -35,9 +35,11 @@ class Metagenomic16SRepresentation:
         self.indexing=indexing
 
 
-        
-
     def get_corpus(self, file_name_sample):
+        '''
+        :param file_name_sample:
+        :return:
+        '''
         file_name=file_name_sample[0]
         sample_size=file_name_sample[1]
         corpus=[]
