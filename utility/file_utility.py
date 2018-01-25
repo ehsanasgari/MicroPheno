@@ -5,17 +5,30 @@ __maintainer__ = "Ehsaneddin Asgari"
 __email__ = "asgari@berkeley.edu or ehsaneddin.asgari@helmholtz-hzi.de"
 __project__ = "LLP - MicroPheno"
 __website__ = "https://llp.berkeley.edu/micropheno/"
+
 import codecs
 import numpy as np
 from scipy import sparse
 import fnmatch
 import os
 import _pickle as pickle
-
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.Alphabet import generic_dna
+from Bio import SeqIO
+from biom import example_table
+from biom import load_table
 
 class FileUtility(object):
     def __init__(self):
         print ('File utility object created..')
+
+    @staticmethod
+    def create_fasta_file(file_address, corpus, label):
+        seq_id_pairs=[('.'.join([str(idx+1),label[idx]]),x) for idx, x in enumerate(corpus)]
+        seq_recs=[ SeqRecord(Seq(seq,generic_dna),id=id, description='') for id,seq in seq_id_pairs]
+        SeqIO.write(seq_recs, file_address, "fasta")
+
 
     @staticmethod
     def read_fasta_directory(file_directory, file_extenstion, only_files=[]):
@@ -34,6 +47,18 @@ class FileUtility(object):
         fasta_files.sort()
         mapping = {v: k for k, v in enumerate(fasta_files)}
         return fasta_files, mapping
+
+    @staticmethod
+    def read_OTU_format(biom_file):
+        '''
+        return OTU content
+        :param biom_file:
+        :return:
+        '''
+        table = load_table(biom_file)
+        X_otu=table.matrix_data
+        OTU_ID_Mapping={x.split('.')[1]:idx for idx,x in enumerate(list(table.ids()))}
+        return X_otu, OTU_ID_Mapping
 
     @staticmethod
     def save_obj(filename, value):

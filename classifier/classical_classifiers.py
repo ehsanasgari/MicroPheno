@@ -2,7 +2,9 @@ __author__ = "Ehsaneddin Asgari"
 __license__ = "GPL"
 __version__ = "1.0.0"
 __maintainer__ = "Ehsaneddin Asgari"
-__email__ = "asgari@berkeley.edu ehsaneddin.asgari@helmholtz-hzi.de"
+__email__ = "asgari@berkeley.edu or ehsaneddin.asgari@helmholtz-hzi.de"
+__project__ = "LLP - MicroPheno"
+__website__ = "https://llp.berkeley.edu/micropheno/"
 
 import sys
 
@@ -49,17 +51,5 @@ class RFClassifier:
         self.CV.tune_and_evaluate(self.model, parameters=params, score='f1_macro', file_name=results_file + '_RF',
                                   n_jobs=15)
 
-class KNN:
-    def __init__(self, X, Y):
-        self.model = KNeighborsClassifier(n_neighbors=3)
-        self.X = X
-        self.Y = Y
-
-    def tune_and_eval(self, results_file, params=None):
-        if params is None:
-            params = [{"n_neighbors": [1,2,3,4,5,6,7,8,9,10,15,20]}]
-        self.CV = KFoldCrossVal(self.X, self.Y, folds=10)
-        self.CV.tune_and_evaluate(self.model, parameters=params, score='f1_macro', file_name=results_file + '_KNN',
-                                  n_jobs=15)
 
 

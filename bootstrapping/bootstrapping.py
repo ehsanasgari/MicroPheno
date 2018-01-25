@@ -198,6 +198,11 @@ class BootStrapping(object):
 
     @staticmethod
     def load_precalculated(file_path):
+        '''
+        load precalculated results
+        :param file_path:
+        :return:
+        '''
         return FileUtility.load_obj(file_path)
 
 

@@ -1,3 +1,11 @@
+__author__ = "Ehsaneddin Asgari"
+__license__ = "GPL"
+__version__ = "1.0.0"
+__maintainer__ = "Ehsaneddin Asgari"
+__email__ = "asgari@berkeley.edu or ehsaneddin.asgari@helmholtz-hzi.de"
+__project__ = "LLP - MicroPheno"
+__website__ = "https://llp.berkeley.edu/micropheno/"
+
 
 import sys
 sys.path.append('../')
@@ -26,7 +34,9 @@ import matplotlib
 
 
 class DNNMutliclass16S(object):
-    
+    '''
+    Deep MLP Neural Network
+    '''
     def __init__(self, X,Y, model_arch=[500]):
         # rep. X
         self.X=X
@@ -41,6 +51,10 @@ class DNNMutliclass16S(object):
         self.model_arch=model_arch
     
     def get_MLP_model(self):
+        '''
+        Create the model
+        :return:
+        '''
         # creating the model
         model = Sequential()
         for layer_idx, h_layer_size in enumerate(self.model_arch):
@@ -55,22 +69,7 @@ class DNNMutliclass16S(object):
         # Compile model
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
-    
-    def get_EMB_MLP_model(self):
-        # creating the model
-        model = Sequential()
-        embedding=np.load('../../datasets/processed_data/embedding/WV_16s.npz')['arr_0']
-        model.add(Dense(embedding.shape[1], input_dim=self.X.shape[1],  weights = [embedding, np.array([0]*1000)], trainable=False , activation='linear'))
-        for layer_idx, h_layer_size in enumerate(self.model_arch):
-            if h_layer_size < 1:
-                model.add(Dropout(h_layer_size))
-            else:
-                model.add(Dense(h_layer_size, activation='relu'))
-        model.add(Dense(self.C, activation='softmax'))        
-        # Compile model
-        model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        self.model_arch=[1000]+self.model_arch
-        return model
+
     
     def get_pretrained_model(self, file_name, trainable):
         pretrained_weights=FileUtility.load_obj(file_name)
@@ -97,7 +96,17 @@ class DNNMutliclass16S(object):
         
     
     def cross_validation(self, result_filename, gpu_dev='2', n_fold=5, epochs=50, batch_size=100, model_strct='mlp', pretrained_model=False, trainable=False):
-
+        '''
+        :param result_filename:
+        :param gpu_dev:
+        :param n_fold:
+        :param epochs:
+        :param batch_size:
+        :param model_strct:
+        :param pretrained_model:
+        :param trainable:
+        :return:
+        '''
         os.environ["CUDA_VISIBLE_DEVICES"] = gpu_dev
         
         skf = StratifiedKFold(n_splits=n_fold, shuffle=True)
@@ -123,8 +132,6 @@ class DNNMutliclass16S(object):
             else:
                 if model_strct=='mlp':
                     model=self.get_MLP_model()
-                if model_strct=='embmlp':
-                    model=self.get_EMB_MLP_model()
             
             # fitting
             history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size,shuffle=True, validation_data=(X_valid, y_valid), verbose=0)
@@ -163,6 +170,9 @@ class DNNMutliclass16S(object):
         val_loss_values = history_dict['val_loss']
         epochs = range(1, len(loss_values) + 1)
 
+        '''
+        Saving the results
+        '''
         if pretrained_model:
             model_strct='pretrained'
             #print (model.summary())
@@ -171,11 +181,21 @@ class DNNMutliclass16S(object):
         weights=[]
         for x in model.layers:
             weights.append(x.get_weights())
-        
+
+        '''
+        Saving the parameters and weights
+        '''
+
         FileUtility.save_obj('_'.join([result_filename, 'layers', model_strct,'-'.join([str(x) for x in self.model_arch]), str(np.round(f1mac,2))]), weights)
 
     @staticmethod
     def load_history(filename, fileout):
+        '''
+        Plot the history
+        :param filename:
+        :param fileout:
+        :return:
+        '''
         [latex_line, p_micro, r_micro, f1_micro, p_macro, r_macro, f1_macro, history]=FileUtility.load_obj(filename)
         (loss_values, val_loss_values, epochs)=history
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -226,7 +246,13 @@ class DNNMutliclass16S(object):
         [latex_line, p_micro, r_micro, f1_micro, p_macro, r_macro, f1_macro, (loss_values, val_loss_values, epochs)]=FileUtility.load_obj(filename)
         print(latex_line)
 
-        
+
+def bodysite():
+    X=FileUtility.load_sparse_csr('../MicroPheno_datasets/body-sites/k-mer_representations_labels/6-mers_rate_5000.npz').toarray()
+    Y=FileUtility.load_list('../MicroPheno_datasets/body-sites/k-mer_representations_labels/labels_phen.txt')
+    DNN=DNNMutliclass16S(X,Y,model_arch=[512,0.2,256,0.2,128,0.1,64])
+    DNN.cross_validation('../MicroPheno_datasets/body-sites/nn', gpu_dev='2', n_fold=3, epochs=300, batch_size=10, model_strct='mlp')
+
 def eco_classification():
     '''
     '''
@@ -252,11 +278,10 @@ def crohns_disease():
     #[1024,0.2,256,0.1,256,0.1,128,0.1,64]
     X=FileUtility.load_sparse_csr('../../datasets/processed_data/crohn/sample-size/6-mers_rate_complete1359_seq_5000.npz').toarray()
     Y=FileUtility.load_list('../../datasets/processed_data/crohn/data_config/labels_disease_complete1359.txt')
-    DNN=DNNMutliclass16S(X,Y,model_arch=[1024,0.2,512,0.2,256,0.1,128,8])
-    DNN.cross_validation('../../datasets/results/crohn/classifier/nn', gpu_dev='2', n_fold=3, epochs=150, batch_size=10, model_strct='mlp')
+    DNN=DNNMutliclass16S(X,Y,model_arch=[512,0.2,256,0.2,128,0.1,64,16])
+    DNN.cross_validation('../../datasets/results/crohn/classifier/nn', gpu_dev='2', n_fold=3, epochs=25, batch_size=10, model_strct='mlp')
 
-    
-    
+
 def eco_all_classification():
     '''
     '''
@@ -284,6 +309,5 @@ def org_classification():
     DNN.cross_validation('../../datasets/results/org/classifier/nn', gpu_dev='2', n_fold=10, epochs=30, batch_size=100, model_strct='mlp')
 
 if __name__=='__main__':
-    crohns_disease()
-    #DNNMutliclass16S.result_visualization('../../datasets/results/eco/classifier/nn')
+    bodysite()
 

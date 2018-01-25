@@ -2,8 +2,9 @@ __author__ = "Ehsaneddin Asgari"
 __license__ = "GPL"
 __version__ = "1.0.0"
 __maintainer__ = "Ehsaneddin Asgari"
-__email__ = "asgari@berkeley.edu ehsaneddin.asgari@helmholtz-hzi.de"
-__project__= "LLP - MicroPheno"
+__email__ = "asgari@berkeley.edu or ehsaneddin.asgari@helmholtz-hzi.de"
+__project__ = "LLP - MicroPheno"
+__website__ = "https://llp.berkeley.edu/micropheno/"
 
 import re
 import scipy.cluster.hierarchy as hac

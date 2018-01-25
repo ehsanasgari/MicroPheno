@@ -2,8 +2,11 @@ __author__ = "Ehsaneddin Asgari"
 __license__ = "GPL"
 __version__ = "1.0.0"
 __maintainer__ = "Ehsaneddin Asgari"
-__email__ = "asgari@berkeley.edu ehsaneddin.asgari@helmholtz-hzi.de"
-__project__= "LLP - MicroPheno"
+__email__ = "asgari@berkeley.edu or ehsaneddin.asgari@helmholtz-hzi.de"
+__project__ = "LLP - MicroPheno"
+__website__ = "https://llp.berkeley.edu/micropheno/"
+
+
 
 import sys
 sys.path.append('../')
@@ -21,6 +24,9 @@ import timeit
 
 
 class Metagenomic16SRepresentation:
+    '''
+        Make k-mer from directory of fasta files
+    '''
 
     def __init__(self, fasta_files, indexing, sampling_number=3000, num_p=20):
         '''
@@ -53,6 +59,11 @@ class Metagenomic16SRepresentation:
     
 
     def generate_kmers_all(self, k, save=False):
+        '''
+        :param k:
+        :param save:
+        :return:
+        '''
         self.k=k
         self.vocab = [''.join(xs) for xs in itertools.product('atcg', repeat=k)]
         self.vocab.sort()
@@ -83,6 +94,11 @@ class Metagenomic16SRepresentation:
         return data
 
     def get_kmer_distribution(self, file_name):
+        '''
+
+        :param file_name:
+        :return:
+        '''
         start = timeit.timeit()
         corpus=[]
         if file_name[-1]=='q':
@@ -100,29 +116,57 @@ class Metagenomic16SRepresentation:
         return file_name, (np.sum(self.vectorizer.fit_transform(corpus).toarray(), axis=0),end - start,tot_size)
 
 
-def body_sites():
-    files=FileUtility.recursive_glob('/mounts/data/proj/asgari/github_repos/microbiomephenotype/data_config/bodysites/','*.txt')
-    list_of_files=[]
-    for file in files:
-        print (file)
-        list_of_files+=FileUtility.load_list(file)
-    list_of_files=[x+'.fsa' for x in list_of_files]
-    fasta_files, mapping = FileUtility.read_fasta_directory('/mounts/data/proj/asgari/dissertation/datasets/deepbio/microbiome/hmb_data/','fsa',only_files=list_of_files)
-    
-    sampling_dict={3:[20,3000],4:[100,1000],5:[500,5000],6:[2000,10000],7:[5000,10000],8:[8000,16000]}
-    for k in range(3,7):
-        for s in sampling_dict[k]:
-            print(k)
-            RS=Metagenomic16SRepresentation(fasta_files, mapping, s, 20)
-            RS.generate_kmers_all(k, save='datasets/bodysites/'+str(k)+'-mers_rate_'+str(s))
+class FastaRepresentations(object):
+    '''
+        Make k-mer from single fasta file
+        where the headers contain info about the label
+    '''
+    def __init__(self, fasta_address, label_modifying_func=str):
+        '''
+        :param fasta_address:
+        :param label_modifying_func: extract label from the header
+        '''
+        self.labels=[]
+        self.corpus=[]
+        for cur_record in SeqIO.parse(fasta_address, 'fasta'):
+            self.corpus.append(str(cur_record.seq).lower())
+            self.labels.append(str(cur_record.id).lower())
+        self.labels=[label_modifying_func(l) for l in self.labels]
 
-    
-def crohn_disease():
-    fasta_files, mapping = FileUtility.read_fasta_directory('/mounts/data/proj/asgari/dissertation/datasets/deepbio/microbiome/crohn/','fastq')
-    RS=Metagenomic16SRepresentation(fasta_files, mapping, 3000, 20)
-    for k in range(3,9):
-        RS.generate_kmers_all(k, save='datasets/crohn/'+str(k)+'-mers_rate_3000')
+    def get_samples(self, envs, N):
+        '''
+        :param envs: list of labels
+        :param N: sample size
+        :return: extract stratified with size N corpus and label list
+        '''
+        labels=[]
+        corpus=[]
+        for env in envs:
+            selected=[idx for idx,v in enumerate(self.labels) if env==v]
+            if N==-1:
+                N=len(selected)
+            idxs=random.sample(selected, N)
+            corpus=corpus+[self.corpus[idx] for idx in idxs]
+            labels=labels+[self.labels[idx] for idx in idxs]
+        return corpus, labels
+
+    def get_vector_rep(self, corpus, k, restricted=True):
+        '''
+        :param corpus:
+        :param k: k-mer size
+        :param restricted: restricted to known values
+        :return:
+        '''
+        if restricted:
+            vocab = [''.join(xs) for xs in itertools.product('atcg', repeat=k)]
+            tf_vec = TfidfVectorizer(use_idf=True, vocabulary=vocab, analyzer='char', ngram_range=(k, k),
+                                                  norm='l1', stop_words=[], lowercase=True, binary=False)
+        else:
+            tf_vec = TfidfVectorizer(use_idf=True, analyzer='char', ngram_range=(k, k),
+                                                  norm='l1', stop_words=[], lowercase=True, binary=False)
+        return tf_vec.fit_transform(corpus)
 
 if __name__=='__main__':
-    crohn_disease()
+    FR=FastaRepresentations('sample.fasta')
+    MR=Metagenomic16SRepresentation('16ssamples/')
 
