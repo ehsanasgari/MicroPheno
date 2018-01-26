@@ -26,10 +26,10 @@ class SVM:
         self.Y = Y
 
     def tune_and_eval(self, results_file,
-                      params=[{'C': [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.2, 0.5, 0.01, 0.02, 0.05, 0.001]}]):
+                      params=[{'C': [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.2, 0.5, 0.01, 0.02, 0.05, 0.001]}], n_jobs=10):
         CV = KFoldCrossVal(self.X, self.Y, folds=10)
         CV.tune_and_evaluate(self.model, parameters=params, score='f1_macro', file_name=results_file + '_SVM',
-                             n_jobs=10)
+                             n_jobs=n_jobs)
 
 
 class RFClassifier:
@@ -40,7 +40,7 @@ class RFClassifier:
         self.X = X
         self.Y = Y
 
-    def tune_and_eval(self, results_file, params=None):
+    def tune_and_eval(self, results_file, params=None,n_jobs=15):
         if params is None:
             params = [{"n_estimators": [100, 200, 500, 1000],
                        "criterion": ["entropy"],  # "gini",
@@ -49,7 +49,7 @@ class RFClassifier:
                        'min_samples_leaf': [1]}]
         self.CV = KFoldCrossVal(self.X, self.Y, folds=10)
         self.CV.tune_and_evaluate(self.model, parameters=params, score='f1_macro', file_name=results_file + '_RF',
-                                  n_jobs=15)
+                                  n_jobs=n_jobs)
 
 
 

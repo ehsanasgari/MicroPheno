@@ -66,20 +66,31 @@ class MicroPheno:
                 RS.generate_kmers_all(k, save=out_dir + '_'.join([dataset_name, str(k) + '-mers', str(N)]))
 
     @staticmethod
-    def classical_classifier(X, Y, dataset_name):
-        #### Random Forest classifier
-        MRF = RFClassifier(X, Y)
-        # results containing the best parameter, confusion metrix, best estimator, results on fold will be stored in this address
-        MRF.tune_and_eval('../../MicroPheno_datasets/body-sites/classification_results')
+    def classical_classifier(X_file, Y_file, model, out_dir, dataset_name, cores):
+        #
+        X=FileUtility.load_sparse_csr(X_file)
+        # labels
+        Y=FileUtility.load_list(Y_file)
 
+        if model=='RF':
+            #### Random Forest classifier
+            MRF = RFClassifier(X, Y)
+            # results containing the best parameter, confusion metrix, best estimator, results on fold will be stored in this address
+            MRF.tune_and_eval(out_dir+'/classification_results_'+dataset_name, n_jobs=cores)
+        else:
+            #### Support Vector Machine classifier
+            MSVM = SVM(X, Y)
+            # results containing the best parameter, confusion metrix, best estimator, results on fold will be stored in this address
+            MSVM.tune_and_eval(out_dir+'/classification_results_'+dataset_name, n_jobs=cores)
 
-        #### Support Vector Machine classifier
-        MSVM = SVM(X, Y)
-        # results containing the best parameter, confusion metrix, best estimator, results on fold will be stored in this address
-        MSVM.tune_and_eval('../../MicroPheno_datasets/body-sites/classification_results')
-
-
-
+    @staticmethod
+    def DNN_classifier(X_file, Y_file, arch, out_dir, dataset_name, gpu_id, epochs, batch_size):
+        # k-mer data
+        X=FileUtility.load_sparse_csr(X_file).toarray()
+        # labels
+        Y=FileUtility.load_list(Y_file)
+        DNN=DNNMutliclass16S(X,Y,model_arch=arch)
+        DNN.cross_validation(out_dir+'nn_classification_results_'+dataset_name, gpu_dev=gpu_id, n_fold=10, epochs=epochs, batch_size=batch_size, model_strct='mlp')
 
 
 def checkArgs(args):
@@ -102,27 +113,37 @@ def checkArgs(args):
 
     # boot strapping #################################################################################################
     parser.add_argument('--indir', action='store', dest='input_dir_bootstrapping', default=False, type=str,
-                        help='directory of 16S rRNA samples', required='--bootstrapping' in sys.argv)
+                        help='bootstrapping: directory of 16S rRNA samples', required='--bootstrapping' in sys.argv)
 
     # generate k-mers ################################################################################################
     parser.add_argument('--inaddr', action='store', dest='genrep_input_addr', default=False, type=str,
-                        help='Generate representations for input fasta file or directory of 16S rRNA samples',
+                        help='genkmer: Generate representations for input fasta file or directory of 16S rRNA samples',
                         required='--genkmer' in sys.argv)
 
     # classification ################################################################################################
 
     parser.add_argument('--x', action='store', dest='X', type=str, default=False,
-                        help=' The data in the npy format rows are instances and columns are features')
+                        help='train_predictor: The data in the npy format rows are instances and columns are features')
 
     parser.add_argument('--y', action='store', dest='Y', type=str, default=False,
-                        help=' The labels associated with the rows of classifyX, each line is a associated with a row')
+                        help='train_predictor: The labels associated with the rows of classifyX, each line is a associated with a row')
 
     parser.add_argument('--model', action='store', dest='model', type=str, default=False,
                         choices=[False, 'RF', 'SVM', 'DNN'],
-                        help=' choice of classifier from RF, SVM, DNN')
+                        help='train_predictor: choice of classifier from RF, SVM, DNN')
+
+    parser.add_argument('--batchsize', action='store', dest='batch_size', type=int, default=10,
+                        help='train_predictor-model/DNN: batch size for deep learning')
+
+    parser.add_argument('--gpu_id', action='store', dest='gpu_id', type=str, default='0',
+                        help='train_predictor-model/DNN: GPU id for deep learning')
+
+    parser.add_argument('--epochs', action='store', dest='epochs', type=int, default=100,
+                        help='train_predictor-model/DNN: number of epochs for deep learning')
+
 
     parser.add_argument('--arch', action='store', dest='dnn_arch', type=str, default='1024,0.2,512',
-                        help=' The comma separated definition of neural network layers connected to eahc other, you do not need to specify the input and output layers, values between 0 and 1 will be considered as dropouts')
+                        help='train_predictor-model/DNN: The comma separated definition of neural network layers connected to eahc other, you do not need to specify the input and output layers, values between 0 and 1 will be considered as dropouts')
 
     # general to bootstrap  and rep ##################################################################################
     parser.add_argument('--filetype', action='store', dest='filetype', type=str, default='fastq',
@@ -171,7 +192,7 @@ def checkArgs(args):
                 err = err + "\nThe filetype " + parsedArgs.filetype + " could not find the directory!"
                 return err
 
-            if not parsedArgs.output_addr:
+            if not parsedArgs.data_name:
                 parsedArgs.data_name = parsedArgs.input_dir_bootstrapping.split('/')[-1]
 
             try:
@@ -202,7 +223,7 @@ def checkArgs(args):
                 err = err + "\nThe filetype " + parsedArgs.filetype + " could not find the directory!"
                 return err
 
-            if not parsedArgs.output_addr:
+            if not parsedArgs.data_name:
                 parsedArgs.data_name = parsedArgs.input_dir_bootstrapping.split('/')[-1]
 
             try:
@@ -225,6 +246,41 @@ def checkArgs(args):
         else:
             print('Representation creation requested for file ' + parsedArgs.genrep_input_addr + '\n')
 
+    if parsedArgs.train_predictor:
+        print('Classification and parameter tuning requested..\n')
+        if not parsedArgs.model:
+            err = err + "\nNo classification model is specified"
+        if (not os.access(parsedArgs.X, os.F_OK)):
+            err = err + "\nError: Permission denied or could not find the X!"
+            return err
+        if (not os.access(parsedArgs.Y, os.F_OK)):
+            err = err + "\nError: Permission denied or could not find the Y!"
+            return err
+        else:
+            try:
+                os.stat(parsedArgs.output_addr)
+            except:
+                os.mkdir(parsedArgs.output_addr)
+                print (parsedArgs.output_addr ,' directory created')
+
+        if not parsedArgs.data_name:
+            parsedArgs.data_name = parsedArgs.X.split('/')[-1].split('.')[0]
+
+
+        if parsedArgs.model=='DNN':
+            '''
+                Deep learning
+            '''
+            arch=[int(layer) if float(layer)>1 else float(layer) for layer in parsedArgs.dnn_arch.split(',')]
+            MicroPheno.DNN_classifier(parsedArgs.X, parsedArgs.Y, arch, parsedArgs.output_addr, parsedArgs.data_name, parsedArgs.gpu_id,parsedArgs.epochs, parsedArgs.batch_size)
+        else:
+            '''
+                SVM and Random Forest
+            '''
+            if parsedArgs.model in ['SVM','RF']:
+                MicroPheno.classical_classifier( parsedArgs.X,  parsedArgs.Y, parsedArgs.model, parsedArgs.output_addr, parsedArgs.data_name, parsedArgs.cores)
+            else:
+                return  "\nNot able to recognize the model!"
 
     else:
         err = err + "\nError: You need to specify an input corpus file!"

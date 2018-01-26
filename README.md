@@ -61,14 +61,14 @@ For the
 
 See notebook . Alternatively you can use:
 ```
-python3 micropheno.py --bootstrap /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --kvals 3,4,5,6 --nvals 10,100,200,500,1000 --name crohs
+python3 micropheno.py --bootstrap --indir /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --kvals 3,4,5,6 --nvals 10,100,200,500,1000 --name crohs
 ```
 
 <h2>Representation Creation</h2>
 
 See notebook . Alternatively you can use:
 ```
-python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --cores 20 --KN 6:100,6:1000,2:100 --name test_crohn
+python3 micropheno.py --genkmer --inaddr /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --cores 20 --KN 6:100,6:1000,2:100 --name test_crohn
 ```
 
 
@@ -77,7 +77,7 @@ python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --file
 You can use the trained represenation in the previous step for classification.
 See notebook . Alternatively you can use:
 ```
-python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --KN 6:100,6:1000,2:100 --name test_crohn
+python3 micropheno.py --train_predictor --model RF (or SVM) --x .k-mer.npz --y labels_phenotypes.txt --cores 20 --name test_crohn  --out output_dir/
 ```
 
 
@@ -85,18 +85,10 @@ python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --file
 
 See notebook . Alternatively you can use:
 ```
-python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --KN 6:100,6:1000,2:100 --name test_crohn
+python3 micropheno.py --train_predictor --model DNN --arch  --batchsize 10 --epochs  100 --x .k-mer.npz --y labels_phenotypes.txt --name test_crohn  --out output_dir/
 ```
 
 <h2>Visualization</h2>
 
 See notebook . Alternatively you can use:
-```
-python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --KN 6:100,6:1000,2:100 --name test_crohn
-```
-
-
-
-
-
 
