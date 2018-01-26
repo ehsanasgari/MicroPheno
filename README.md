@@ -79,9 +79,12 @@ python3 micropheno.py --genkmer --inaddr /path/to/16srRNAsamples/ --out output_d
 <h2>Classification with Random Forest and SVM</h2>
 
 You can use the trained represenation in the previous step for classification.
-See this <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb">notebooks</a>.
+See <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb" > this notebooks</a>.
 
 <b>Command line use:</b> Argument to be used are the X and Y, the classification algorithm (SVM, or RF), output directory as well as number of cores to be used. Use argument '-h' to see the helpers.
+
+The following command will do tuning the parameters as well as evaluation within a 10xFold corss-validation scheme. Details on how to parse the results (scores, confusion matrix, best estimator, etc) is provided <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb" > here</a>.
+
 ```
 python3 micropheno.py --train_predictor --model RF (or SVM) --x k-mer.npz --y labels_phenotypes.txt --cores 20 --name test_crohn  --out output_dir/
 ```
@@ -94,7 +97,7 @@ python3 micropheno.py --train_predictor --model RF (or SVM) --x k-mer.npz --y la
 
 Our objective is minimizing the loss, i.e. cross entropy between output and the one-hot vector representation of the target class. The error (the distance between the output and the target) is used to update the network parameters via a Back-propagation algorithm using Adaptive Moment Estimation (Adam) as optimizer (Kingma2015).
 
-You can see an example in the notebooks <a href=''>here</a>.
+You can see an example in the notebooks <a href='https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/4.%20Classification%20Deep%20Learning.ipynb'>here</a>, showing how to see the learning curves and also getting the activation function of the neural network from the trained model.
 
 <b>Command line use:</b> Argument to be used are the X and Y, the DNN flag, the neural network architecture (hidden-sizes and dropouts), batch size, number of epochs, output directory as well as the GPU id to be used. Use argument '-h' to see the helpers.
 
@@ -105,7 +108,7 @@ python3 micropheno.py --train_predictor --model DNN --arch  --batchsize 10 --epo
 
 <h2>Visualization</h2>
 
-An example of visualization is provided in <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/5.%20Visualization.ipynb">this notebook</a>.
+An example of visualization using PCA, t-SNE, as well as t-SNE over the activation function of the last layer of the neural network is provided in <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/5.%20Visualization.ipynb">this notebook</a>.
 
 
 
