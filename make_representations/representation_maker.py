@@ -89,7 +89,8 @@ class Metagenomic16SRepresentation:
         if save:
             FileUtility.save_sparse_csr(save, data)
             FileUtility.save_list(save+'_meta',self.fasta_files)
-            FileUtility.save_list(save+'_log',[': '.join(['mean_time', str(np.mean(t_steps))]), ': '.join(['std_time', str(np.std(t_steps))]), ': '.join(['mean_size', str(np.mean(s_steps))]), ': '.join(['std_size', str(np.std(s_steps))])])
+            # ': '.join(['mean_time', str(np.mean(t_steps))]), ': '.join(['std_time', str(np.std(t_steps))])
+            FileUtility.save_list(save+'_log',[': '.join(['mean_size', str(np.mean(s_steps))]), ': '.join(['std_size', str(np.std(s_steps))])])
 
         return data
 

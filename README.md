@@ -52,8 +52,6 @@ pip install -r requirements.txt
 Please cite the MicroPheno if you use this tool:
 
 
-
-
 <h1> User manual </h1>
 
 The users may use the examples provided in the notebooks or the command-line interface.
@@ -70,11 +68,35 @@ python3 micropheno.py --bootstrap /path/to/16srRNAsamples/ --out output_dir/ --f
 
 See notebook . Alternatively you can use:
 ```
-python3 micropheno.py --bootstrap /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --kvals 3,4,5,6 --nvals 10,100,200,500,1000 --name crohs
+python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --cores 20 --KN 6:100,6:1000,2:100 --name test_crohn
 ```
 
-&nbsp;
 
-&nbsp;
+<h2>Classification with Random Forest and SVM</h2>
 
-&nbsp;
+You can use the trained represenation in the previous step for classification.
+See notebook . Alternatively you can use:
+```
+python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --KN 6:100,6:1000,2:100 --name test_crohn
+```
+
+
+<h2>Classification with Deep Neural Network</h2>
+
+See notebook . Alternatively you can use:
+```
+python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --KN 6:100,6:1000,2:100 --name test_crohn
+```
+
+<h2>Visualization</h2>
+
+See notebook . Alternatively you can use:
+```
+python3 micropheno.py --genrep /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --KN 6:100,6:1000,2:100 --name test_crohn
+```
+
+
+
+
+
+

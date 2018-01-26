@@ -15,6 +15,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import itertools
 import random
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 from utility.math_utility import get_kl_rows
 from matplotlib.pyplot import *
 from Bio import SeqIO

@@ -12,12 +12,13 @@ __website__ = "https://llp.berkeley.edu/micropheno/"
 import argparse
 import os
 import os.path
-import re
 import sys
 
 from bootstrapping.bootstrapping import BootStrapping
+from make_representations.representation_maker import Metagenomic16SRepresentation
 from utility.file_utility import FileUtility
-
+from classifier.classical_classifiers import RFClassifier,SVM
+from classifier.DNN import DNNMutliclass16S
 
 class MicroPheno:
     def __init__(self):
@@ -50,24 +51,35 @@ class MicroPheno:
 
         BS.plotting('results_bootstrapping' + '_' + dataset_name, dataset_name)
 
-    def generate_sent_ngrams_overlapping(self, sentence, n, whitespace_mark='@', padding=False):
-        '''
-        :param sentence: sentence t
-        :param n: n of n-gram
-        :param padding: to pad whitespaces before and after sentence
-        :param cookie_cut: generate all ways or only overlapping
-        :return:
-        '''
+    @staticmethod
+    def representation_creation_dir(inp_dir, out_dir, dataset_name, num_p, filetype='fastq',
+                                    sampling_dict={3: [20], 4: [100], 5: [500], 6: [100, 1000, 2000, 5000, 10000, -1],
+                                                   7: [5000], 8: [8000]}):
 
-        if whitespace_mark:
-            sentence = re.sub(r"\s+", whitespace_mark, sentence)
+        fasta_files, mapping = FileUtility.read_fasta_directory(inp_dir, filetype)
 
-        if padding:
-            sentence = whitespace_mark * (n - 1) + sentence + whitespace_mark * (n - 1)
+        for k in sampling_dict.keys():
+            for N in sampling_dict[k]:
+                print(k, '-mers with sampling size ', N)
+                RS = Metagenomic16SRepresentation(fasta_files, mapping, N, num_p)
+                # path to save the generated files
+                RS.generate_kmers_all(k, save=out_dir + '_'.join([dataset_name, str(k) + '-mers', str(N)]))
 
-        # generate all ways of n-gram sequences
-        all_ngrams = [(sentence[i:i + n]) for i in range(len(sentence) - n + 1)]
-        return [all_ngrams[i::n] for i in range(n)]
+    @staticmethod
+    def classical_classifier(X, Y, dataset_name):
+        #### Random Forest classifier
+        MRF = RFClassifier(X, Y)
+        # results containing the best parameter, confusion metrix, best estimator, results on fold will be stored in this address
+        MRF.tune_and_eval('../../MicroPheno_datasets/body-sites/classification_results')
+
+
+        #### Support Vector Machine classifier
+        MSVM = SVM(X, Y)
+        # results containing the best parameter, confusion metrix, best estimator, results on fold will be stored in this address
+        MSVM.tune_and_eval('../../MicroPheno_datasets/body-sites/classification_results')
+
+
+
 
 
 def checkArgs(args):
@@ -80,20 +92,54 @@ def checkArgs(args):
     # will be prompted
     parser = argparse.ArgumentParser()
 
-    # arguments
-    parser.add_argument('--bootstrap', action='store', dest='input_dir_bootstrapping', default=False, type=str,
-                        help='directory of 16S rRNA samples')
+    # top level ######################################################################################################
+    parser.add_argument('--bootstrapping', action='store_true', help='To enable classification and parameter tuning')
 
+    parser.add_argument('--genkmer', action='store_true',
+                        help='To enable generation of representations for input fasta file or directory of 16S rRNA samples')
+
+    parser.add_argument('--train_predictor', action='store_true', help='To enable classification and parameter tuning')
+
+    # boot strapping #################################################################################################
+    parser.add_argument('--indir', action='store', dest='input_dir_bootstrapping', default=False, type=str,
+                        help='directory of 16S rRNA samples', required='--bootstrapping' in sys.argv)
+
+    # generate k-mers ################################################################################################
+    parser.add_argument('--inaddr', action='store', dest='genrep_input_addr', default=False, type=str,
+                        help='Generate representations for input fasta file or directory of 16S rRNA samples',
+                        required='--genkmer' in sys.argv)
+
+    # classification ################################################################################################
+
+    parser.add_argument('--x', action='store', dest='X', type=str, default=False,
+                        help=' The data in the npy format rows are instances and columns are features')
+
+    parser.add_argument('--y', action='store', dest='Y', type=str, default=False,
+                        help=' The labels associated with the rows of classifyX, each line is a associated with a row')
+
+    parser.add_argument('--model', action='store', dest='model', type=str, default=False,
+                        choices=[False, 'RF', 'SVM', 'DNN'],
+                        help=' choice of classifier from RF, SVM, DNN')
+
+    parser.add_argument('--arch', action='store', dest='dnn_arch', type=str, default='1024,0.2,512',
+                        help=' The comma separated definition of neural network layers connected to eahc other, you do not need to specify the input and output layers, values between 0 and 1 will be considered as dropouts')
+
+    # general to bootstrap  and rep ##################################################################################
     parser.add_argument('--filetype', action='store', dest='filetype', type=str, default='fastq',
                         help='fasta fsa fastq etc')
+
+    # bootstrap ################################################################################
     parser.add_argument('--kvals', action='store', dest='kvals', type=str, default='3,4,5,6,7,8',
                         help='Comma separated k-mer values 2,3,4,5,6')
+
     parser.add_argument('--nvals', action='store', dest='nvals', type=str,
                         default='10,20,50,100,200,500,1000,2000,5000,10000', help='Comma separated sample sizes')
 
-    parser.add_argument('--genrep', action='store', dest='input_addr', default=False, type=str,
-                        help='Generate representations for input fasta file or directory of 16S rRNA samples')
+    # rep / classifier ################################################################################
+    parser.add_argument('--cores', action='store', dest='cores', default=4, type=int,
+                        help='Number of cores to be used')
 
+    # rep ##################################################################################
     parser.add_argument('--KN', action='store', dest='K_N', default=None, type=str,
                         help='pair of comma separated Kmer:sub-sample-size ==> 2:100,6:-1 (N=-1 means using all sequences)')
 
@@ -101,11 +147,12 @@ def checkArgs(args):
 
     parser.add_argument('--in', action='store', dest='input_addr', type=str, default=None,
                         help='Input fasta file or directory of samples')
+
     parser.add_argument('--name', action='store', dest='data_name', type=str, default=None, help='name of the dataset')
 
     parsedArgs = parser.parse_args()
 
-    if parsedArgs.input_dir_bootstrapping:
+    if parsedArgs.bootstrapping:
         '''
             bootstrapping functionality
         '''
@@ -120,20 +167,64 @@ def checkArgs(args):
 
                 os.mkdir(parsedArgs.output_addr)
 
-            if len(FileUtility.recursive_glob(parsedArgs.input_dir_bootstrapping, '*'+parsedArgs.filetype))==0:
-                err = err + "\nThe filetype "+parsedArgs.filetype+" could not find the directory!"
+            if len(FileUtility.recursive_glob(parsedArgs.input_dir_bootstrapping, '*' + parsedArgs.filetype)) == 0:
+                err = err + "\nThe filetype " + parsedArgs.filetype + " could not find the directory!"
                 return err
 
             if not parsedArgs.output_addr:
-                parsedArgs.data_name=parsedArgs.input_dir_bootstrapping.split('/')[-1]
+                parsedArgs.data_name = parsedArgs.input_dir_bootstrapping.split('/')[-1]
 
             try:
-                k_values=[int(x) for x in parsedArgs.kvals.split(',')]
-                n_values=[int(x) for x in parsedArgs.nvals.split(',')]
+                k_values = [int(x) for x in parsedArgs.kvals.split(',')]
+                n_values = [int(x) for x in parsedArgs.nvals.split(',')]
             except:
                 err = err + "\n k-mers or sampling sizes are not fed correctly; see the help with -h!"
                 return err
-            MicroPheno.bootstrapping( parsedArgs.input_dir_bootstrapping, parsedArgs.output_addr, parsedArgs.output_addr, filetype = parsedArgs.filetype, k_values = k_values, sampling_sizes = n_values)
+            MicroPheno.bootstrapping(parsedArgs.input_dir_bootstrapping, parsedArgs.output_addr, parsedArgs.data_name,
+                                     filetype=parsedArgs.filetype, k_values=k_values, sampling_sizes=n_values)
+        return False
+
+    if parsedArgs.genkmer:
+        '''
+            Representation creation functionality
+        '''
+        if (not os.access(parsedArgs.genrep_input_addr, os.F_OK)):
+            err = err + "\nError: Permission denied or could not find the directory!"
+            return err
+        elif os.path.isdir(parsedArgs.genrep_input_addr):
+            print('Representation creation requested for directory ' + parsedArgs.genrep_input_addr + '\n')
+            try:
+                os.stat(parsedArgs.output_addr)
+            except:
+                os.mkdir(parsedArgs.output_addr)
+
+            if len(FileUtility.recursive_glob(parsedArgs.genrep_input_addr, '*' + parsedArgs.filetype)) == 0:
+                err = err + "\nThe filetype " + parsedArgs.filetype + " could not find the directory!"
+                return err
+
+            if not parsedArgs.output_addr:
+                parsedArgs.data_name = parsedArgs.input_dir_bootstrapping.split('/')[-1]
+
+            try:
+                sampling_dict = dict()
+                for x in parsedArgs.K_N.split(','):
+                    k, n = x.split(':')
+                    k = int(k)
+                    n = int(n)
+                    if k in sampling_dict:
+                        sampling_dict[k].append(n)
+                    else:
+                        sampling_dict[k] = [n]
+            except:
+                err = err + "\nWrong format for KN (k-mer sample sizes)!"
+                return err
+
+            MicroPheno.representation_creation_dir(parsedArgs.genrep_input_addr, parsedArgs.output_addr,
+                                                   parsedArgs.data_name, parsedArgs.cores, filetype=parsedArgs.filetype,
+                                                   sampling_dict=sampling_dict)
+        else:
+            print('Representation creation requested for file ' + parsedArgs.genrep_input_addr + '\n')
+
 
     else:
         err = err + "\nError: You need to specify an input corpus file!"
@@ -141,8 +232,9 @@ def checkArgs(args):
 
     return False
 
+
 if __name__ == '__main__':
     err = checkArgs(sys.argv)
-    if  err :
+    if err:
         print(err)
         exit()
