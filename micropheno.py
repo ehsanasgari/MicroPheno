@@ -9,36 +9,46 @@ __email__ = "asgari@berkeley.edu or ehsaneddin.asgari@helmholtz-hzi.de"
 __project__ = "LLP - MicroPheno"
 __website__ = "https://llp.berkeley.edu/micropheno/"
 
+import argparse
+import os
+import os.path
 import re
 import sys
-import os
-import argparse
-import os.path
-import codecs
-import random
-from Bio import SeqIO
-import numpy as np
 
-class FastaCutter:
-    def __init__(self, fasta_path, ngram_range):
-        '''
-        :param corpus: list of sentences
-        '''
-        f=dict()
-        for i, ngram in enumerate(ngram_range):
-            f[i]=codecs.open('/mounts/data/proj/asgari/other/swiss_notshuff_'+str(ngram)+'.txt','w','utf-8')
+from bootstrapping.bootstrapping import BootStrapping
+from utility.file_utility import FileUtility
 
-        #f_rand=codecs.open(fasta_path.split('.')[0]+'_rand.txt','w','utf-8')
-        for cur_record in SeqIO.parse(fasta_path, "fasta") :
-            seq=str(cur_record.seq).upper()
-            for i, ngram in enumerate(ngram_range):
-                f[i].write('\n'.join([' '.join(chops) for chops in self.generate_sent_ngrams_overlapping(seq, ngram)]))
-                f[i].write('\n')
-            #f_rand.write('\n'.join([' '.join(chops) for chops in self.generate_random_cutter(seq)]))
-            #f_rand.write('\n')
-        for i, ngram in enumerate(ngram_range):
-            f[i].close()
-        #f_rand.close()
+
+class MicroPheno:
+    def __init__(self):
+        '''
+            MicroPheno commandline use
+            For interactive interface please see the ipython notebooks
+            in the notebook directory
+        '''
+        print('MicroPheno 1.0.0 == HTTP://LLP.BERKELEY.EDU/MICROPHENO')
+
+    @staticmethod
+    def bootstrapping(inp_dir, out_dir, dataset_name, filetype='fastq', k_values=[3, 4, 5, 6, 7, 8],
+                      sampling_sizes=[10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]):
+        '''
+        :param inp_dir:
+        :param out_dir:
+        :param filetype:
+        :param k_values:
+        :param sampling_sizes:
+        :return:
+        '''
+        fasta_files, mapping = FileUtility.read_fasta_directory(inp_dir, filetype)
+        BS = BootStrapping(fasta_files, out_dir, seqtype=filetype, sampling_sizes=sampling_sizes,
+                           n_resamples=10, M=10)
+
+        for k in k_values:
+            print(k, '-mer bootstrapping started')
+            BS.add_kmer_sampling(k)
+            print(k, '-mer bootstrapping completed')
+
+        BS.plotting('results_bootstrapping' + '_' + dataset_name, dataset_name)
 
     def generate_sent_ngrams_overlapping(self, sentence, n, whitespace_mark='@', padding=False):
         '''
@@ -48,6 +58,7 @@ class FastaCutter:
         :param cookie_cut: generate all ways or only overlapping
         :return:
         '''
+
         if whitespace_mark:
             sentence = re.sub(r"\s+", whitespace_mark, sentence)
 
@@ -57,21 +68,6 @@ class FastaCutter:
         # generate all ways of n-gram sequences
         all_ngrams = [(sentence[i:i + n]) for i in range(len(sentence) - n + 1)]
         return [all_ngrams[i::n] for i in range(n)]
-
-    def generate_random_cutter(self,sentence):
-        result=[]
-        for i in range(0,len(sentence)):
-            seq_cut=[]
-            cuts=np.random.randint(5,size=(1,len(sentence)))+2
-            l=0
-            count=0
-            while (l<len(sentence)):
-                seq_cut.append(sentence[l:min(l+cuts[count])])
-                l=l+min(l+cuts[count])
-                count+=1
-            result.append(seq_cut)
-        return result
-
 
 
 def checkArgs(args):
@@ -85,22 +81,68 @@ def checkArgs(args):
     parser = argparse.ArgumentParser()
 
     # arguments
-    parser.add_argument('--in', action='store', dest='input_file', default='english_brown_corpus.txt', type=str,
-                        help='Input corpus file')
-    parser.add_argument('--n', action='store', dest='ngram', type=int, default=4, help='N in n-grams')
-    parser.add_argument('--out', action='store', dest='output_file', type=str, default='output_ngram_corpus.txt',
-                        help='Output corpus file')
-    parser.add_argument('--shuffle', action='store', dest='shuffle_out', type=int, default=1,
-                        help='Whether to shuffle the output or not')
+    parser.add_argument('--bootstrap', action='store', dest='input_dir_bootstrapping', default=False, type=str,
+                        help='directory of 16S rRNA samples')
+
+    parser.add_argument('--filetype', action='store', dest='filetype', type=str, default='fastq',
+                        help='fasta fsa fastq etc')
+    parser.add_argument('--kvals', action='store', dest='kvals', type=str, default='3,4,5,6,7,8',
+                        help='Comma separated k-mer values 2,3,4,5,6')
+    parser.add_argument('--nvals', action='store', dest='nvals', type=str,
+                        default='10,20,50,100,200,500,1000,2000,5000,10000', help='Comma separated sample sizes')
+
+    parser.add_argument('--genrep', action='store', dest='input_addr', default=False, type=str,
+                        help='Generate representations for input fasta file or directory of 16S rRNA samples')
+
+    parser.add_argument('--KN', action='store', dest='K_N', default=None, type=str,
+                        help='pair of comma separated Kmer:sub-sample-size ==> 2:100,6:-1 (N=-1 means using all sequences)')
+
+    parser.add_argument('--out', action='store', dest='output_addr', type=str, default='out', help='Out put directory')
+
+    parser.add_argument('--in', action='store', dest='input_addr', type=str, default=None,
+                        help='Input fasta file or directory of samples')
+    parser.add_argument('--name', action='store', dest='data_name', type=str, default=None, help='name of the dataset')
+
     parsedArgs = parser.parse_args()
 
-    if parsedArgs.input_file != None:
-        if (not os.access(parsedArgs.input_file, os.F_OK)):
-            err = err + "\nError: Permission denied or could not find the file!"
+    if parsedArgs.input_dir_bootstrapping:
+        '''
+            bootstrapping functionality
+        '''
+        print('Bootstrapping requested..\n')
+        if (not os.access(parsedArgs.input_dir_bootstrapping, os.F_OK)):
+            err = err + "\nError: Permission denied or could not find the directory!"
+            return err
+        else:
+            try:
+                os.stat(parsedArgs.output_addr)
+            except:
+
+                os.mkdir(parsedArgs.output_addr)
+
+            if len(FileUtility.recursive_glob(parsedArgs.input_dir_bootstrapping, '*'+parsedArgs.filetype))==0:
+                err = err + "\nThe filetype "+parsedArgs.filetype+" could not find the directory!"
+                return err
+
+            if not parsedArgs.output_addr:
+                parsedArgs.data_name=parsedArgs.input_dir_bootstrapping.split('/')[-1]
+
+            try:
+                k_values=[int(x) for x in parsedArgs.kvals.split(',')]
+                n_values=[int(x) for x in parsedArgs.nvals.split(',')]
+            except:
+                err = err + "\n k-mers or sampling sizes are not fed correctly; see the help with -h!"
+                return err
+            MicroPheno.bootstrapping( parsedArgs.input_dir_bootstrapping, parsedArgs.output_addr, parsedArgs.output_addr, filetype = parsedArgs.filetype, k_values = k_values, sampling_sizes = n_values)
+
     else:
         err = err + "\nError: You need to specify an input corpus file!"
-    return [err, parsedArgs.input_file, parsedArgs.ngram, parsedArgs.output_file, parsedArgs.shuffle_out, parsedArgs.isFasta]
+        print('others')
 
+    return False
 
 if __name__ == '__main__':
-    CC = FastaCutter('/mounts/Users/student/asgari/PycharmProjects/bioinformatics/embeddings/datasets/proteins/swissprot/swiss_prot.fasta',range(2,3))
+    err = checkArgs(sys.argv)
+    if  err :
+        print(err)
+        exit()

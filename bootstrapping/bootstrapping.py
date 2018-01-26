@@ -44,15 +44,15 @@ class BootStrapping(object):
         self.sampling_sizes = sampling_sizes
         self.n_resamples = n_resamples
         # dictionary for different k-values
-        # x's are the sampling sizes
+        # are the sampling sizes
         self.N_axis = dict()
-        # y's are mean of distances among k-mer distribution resamples
+        # are mean of distances among k-mer distribution resamples
         self.D_S = dict()
-        # errors's are std of distances among k-mer distribution resamples
+        # are std of distances among k-mer distribution resamples
         self.std_D_S = dict()
-        # y_tot's are mean of distances between k-mer distribution resamples and the whole sample k-mer distribution
+        # are mean of distances between k-mer distribution resamples and the whole sample k-mer distribution
         self.D_R = dict()
-        # error_tot's are std of distances between k-mer distribution resamples and the whole sample k-mer distribution
+        # are std of distances between k-mer distribution resamples and the whole sample k-mer distribution
         self.std_D_R = dict()
 
     def add_kmer_sampling(self, k_mer):

@@ -37,11 +37,41 @@
 
 <hr />
 
-&nbsp;</td>
+</td>
 </tr>
 </tbody>
 </table>
-&nbsp;
+
+<h1>Installation</h1>
+
+MicroPheno is implemented in Python3.x and uses ScikitLearn and Keras frameworks for machine learning. To install the dependencies use the following command:
+```
+pip install -r requirements.txt
+```
+
+Please cite the MicroPheno if you use this tool:
+
+
+
+
+<h1> User manual </h1>
+
+The users may use the examples provided in the notebooks or the command-line interface.
+For the
+
+<h2>Bootstrapping</h2>
+
+See notebook . Alternatively you can use:
+```
+python3 micropheno.py --bootstrap /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --kvals 3,4,5,6 --nvals 10,100,200,500,1000 --name crohs
+```
+
+<h2>Representation Creation</h2>
+
+See notebook . Alternatively you can use:
+```
+python3 micropheno.py --bootstrap /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --kvals 3,4,5,6 --nvals 10,100,200,500,1000 --name crohs
+```
 
 &nbsp;
 
