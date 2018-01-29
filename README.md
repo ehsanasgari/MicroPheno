@@ -8,7 +8,6 @@
 <tr>
 <td style="width: 450px;"><img class="alignnone size-medium wp-image-82" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Micropheno_v2-226x300.png" alt="" width="450" height="300" /></td>
 <td style="width: 500px;"><span style="font-family: helvetica,arial,sans-serif;"><span style="color: #800000; font-size: 14pt;"><strong>MicroPheno </strong></span>is a reference- and alignment-free approach for predicting the environment or host phenotype from microbial community samples based on k-mer distributions in shallow sub-samples of 16S rRNA data.</span>
-	<small>".. And a microphone for microbes to speak out about their host phenotypes and environments"</small>
 	</td>
 </tr>
 </tbody>
