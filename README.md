@@ -1,52 +1,6 @@
 # MicroPheno
 <h1 id="micropheno">MicroPheno</h1>
 <table style="height: 48px; width: 812px;">
-<tbody>
-<tr>
-<td style="width: 802px;">
-<table style="width: 798px;">
-<tbody>
-<tr style="height: 57px;">
-<td style="width: 945px; height: 57px;" colspan="2"><span style="font-size: 14pt; font-family: helvetica,arial,sans-serif;"><span style="color: #0000ff;"><strong>Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples</strong></span></span></td>
-</tr>
-<tr style="height: 230.867px;">
-<td style="width: 331.533px; height: 230.867px;"><img class="wp-image-140 aligncenter" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Micropheno_v2-226x300.png" alt="" width="154" height="205" />
-
-<span style="font-family: helvetica,arial,sans-serif; font-size: 8pt;"><em>A microphone for microbes to speak out about their host phenotypes and environments</em></span></td>
-<td style="width: 613.467px; height: 230.867px;"><span style="color: #800000; font-size: 14pt;"><strong>MicroPheno </strong></span>is a reference- and alignment-free approach for predicting the environment or host phenotype from microbial community samples based on k-mer distributions in shallow sub-samples of 16S rRNA data.
-
-<span style="color: #ff0000;">MicroPheno's paper is still under review. Please cite the <a href="https://www.biorxiv.org/content/early/2018/01/28/255018">bioarXiv</a> version:</span>
-<div class="gmail_default"><span style="font-size: 10pt; color: #000000;">Asgari E, Garakani K, McHardy AC and Mofrad MRK (2018) </span></div>
-<div class="gmail_default"><span style="font-size: 10pt; color: #000000;"><strong>MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples</strong>. <em>bioRxiv.</em></span></div>
-<div class="gmail_default"><span style="font-size: 10pt; color: #000000;"> Available at: https://www.biorxiv.org/content/early/2018/01/28/255018.</span></div>
-<div> <a href="https://www.biorxiv.org/highwire/citation/78275/bibtext"><img class="alignnone wp-image-142" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/bibtex-icon.png" alt="" width="44" height="44" /></a> <a href="https://www.biorxiv.org/highwire/citation/78275/mendeley"><img class="alignnone wp-image-143" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Apps-Mendeley-icon-150x150.png" alt="" width="47" height="41" /></a></div></td>
-</tr>
-</tbody>
-</table>
-<strong>The implementation</strong> is available at <a href="https://github.com/ehsanasgari/MicroPheno"><img class="alignnone size-full wp-image-85" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/github-e1516824281561.png" alt="" width="50" height="50" /></a> with detailed <a href="https://github.com/ehsanasgari/MicroPheno/tree/master/notebooks">ipython notebooks</a> and a command-line interface.
-
-<strong>The datasets </strong> are also available for download <img class="alignnone size-full wp-image-36" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/zip.png" alt="" width="50" height="50" />.
-
-<strong><span style="color: #800000;">This repository and datasets will be publicized after acceptance of the journal paper.</span></strong>
-
-<hr />
-
-<span style="font-family: helvetica,arial,sans-serif; font-size: 24pt;"><strong>Summary</strong></span>
-
-&nbsp;
-
-<img class="alignnone wp-image-112 size-large" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Screen-Shot-2018-01-24-at-11.13.26-PM-1024x256.png" alt="" width="960" height="240" />
-
-<span style="font-family: helvetica,arial,sans-serif;"><strong><span style="font-size: 24pt;">M</span>otivation:</strong> Microbial communities play important roles in the function and maintenance of various biosystems, ranging from the human body to the environment. A major challenge in microbiome research is the classification of microbial communities of different environments or host phenotypes. The most common and cost-effective approach for such studies to date is 16S rRNA gene sequencing. Recent falls in sequencing costs have increased the demand for simple, efficient, and accurate methods for rapid detection or diagnosis with proved applications in medicine, agriculture, and forensic science. We describe a reference- and alignment-free approach for predicting environments and host phenotypes from 16S rRNA gene sequencing based on k-mer representations that benefits from a bootstrapping framework for investigating the sufficiency of shallow sub-samples. Deep learning methods as well as classical approaches were explored for predicting environments and host phenotypes. </span>
-
-<span style="font-family: helvetica,arial,sans-serif;"><strong><span style="font-size: 24pt;">R</span>esults:</strong> k-mer distribution of shallow sub-samples outperformed the computationally costly Operational Taxonomic Unit (OTU) features in the tasks of body-site identification and Crohn's disease prediction. Aside from being more accurate, using k-mer features in shallow sub-samples allows (i) skipping computationally costly sequence alignments required in OTU-picking, and (ii) provided a proof of concept for the sufficiency of shallow and short-length 16S rRNA sequencing for phenotype prediction. In addition, k-mer features predicted representative 16S rRNA gene sequences of 18 ecological environments, and 5 organismal environments with high macro-F1 scores of 0.88 and 0.87. For large datasets, deep learning outperformed classical methods such as Random Forest and SVM.</span>
-
-<hr />
-
-<table style="height: 48px; width: 812px;">
-<tbody>
-<tr>
-<td style="width: 802px;">
 <table style="width: 802px;">
 <tbody>
 <tr>
