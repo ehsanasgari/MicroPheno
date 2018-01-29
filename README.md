@@ -21,8 +21,8 @@ Asgari E, Garakani K, McHardy AC and Mofrad MRK, MicroPheno: Predicting environm
  The datasets </strong> are also available for download <img class="alignnone wp-image-36" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/zip.png" alt="" width="33" height="33" />.
 
 <strong>Contact</strong>: Ehsaneddin Asgari (<span style="color: #0000ff;">asgari [at] berkeley [dot] edu</span>)
-
-
+<br/>
+<strong>Project page:</strong>: <a href="http://llp.berkeley.edu/micropheno">http://llp.berkeley.edu/micropheno</a>
 <hr />
 
 <span style="font-family: helvetica,arial,sans-serif; font-size: 24pt;"><strong>Summary</strong></span>
@@ -49,12 +49,24 @@ MicroPheno is implemented in Python3.x and uses ScikitLearn and Keras frameworks
 pip install -r requirements.txt
 ```
 
-Please cite the MicroPheno if you use this tool:
+Please cite the <a style="color: #800000;" href="https://www.biorxiv.org/content/early/2018/01/28/255018">bioarXiv</a> version  <a href="https://www.biorxiv.org/highwire/citation/78275/bibtext"><img class="alignnone wp-image-142" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/bibtex-icon.png" alt="" width="44" height="44" /></a> <a href="https://www.biorxiv.org/highwire/citation/78275/mendeley"><img class="alignnone wp-image-143" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Apps-Mendeley-icon-150x150.png" alt="" width="47" height="41" /></a>
 
+```
+@article {Asgari255018,
+	author = {Asgari, Ehsaneddin and Garakani, Kiavash and McHardy, Alice Carolyn and Mofrad, Mohammad R.K.},
+	title = {MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples},
+	year = {2018},
+	doi = {10.1101/255018},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2018/01/28/255018},
+	eprint = {https://www.biorxiv.org/content/early/2018/01/28/255018.full.pdf},
+	journal = {bioRxiv}
+}
 
+```
 
 <h1> User Manual </h1>
-You may use MicroPheno either using the templates provided in the <a href="https://github.com/ehsanasgari/MicroPheno/tree/master/notebooks">ipython notebooks</a> or the command-line interface.
+MicroPheno can be used either via the templates provided in the <a href="https://github.com/ehsanasgari/MicroPheno/tree/master/notebooks">ipython notebooks</a> or the command-line interface.
 
 <h2>Bootstrapping</h2>
 An example of bootstrapping provided in the <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/1.Bootstrapping.ipynb">notebooks</a>.
@@ -63,12 +75,12 @@ An example of bootstrapping provided in the <a href="https://github.com/ehsanasg
 ```
 python3 micropheno.py --bootstrap --indir /path/to/16srRNAsamples/ --out output_dir/ --filetype fastq --kvals 3,4,5,6 --nvals 10,100,200,500,1000 --name crohs
 ```
-The output would be generating the following plot in the output directory. the <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/1.Bootstrapping.ipynb">notebooks</a> for more details.
-![bootstrapping](https://user-images.githubusercontent.com/8551117/35446008-af953ad6-02b3-11e8-9b33-06d1f4b429f3.png)
+The output would be generating the following plot in the specified output directory. See the related <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/1.Bootstrapping.ipynb">notebook</a> for more details.
+<img src="https://user-images.githubusercontent.com/8551117/35446008-af953ad6-02b3-11e8-9b33-06d1f4b429f3.png" alt="bootstrapping" />
 
 
 <h2>Representation Creation</h2>
-Two examples of representation creation are provided in the <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/2.%20k-mer%20Representation%20Creation%20with%20sub-sampling%20or%20without.ipynb">notebooks</a>, one with sampling from sequence files and one for representative sequences.
+Two examples of representation creation are provided in the <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/2.%20k-mer%20Representation%20Creation%20with%20sub-sampling%20or%20without.ipynb">notebooks</a>, one with sampling from sequence files and the other for mapping the representative sequences.
 
 <b>Command line use:</b> Argument to be used are the input/output directories, the sequence filetype, the k-mers and their sample size as well as number of cores to be used. Use argument '-h' to see the helpers.
 
@@ -78,26 +90,25 @@ python3 micropheno.py --genkmer --inaddr /path/to/16srRNAsamples/ --out output_d
 
 <h2>Classification with Random Forest and SVM</h2>
 
-You can use the trained represenation in the previous step for classification.
-See <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb" > this notebooks</a>.
+The trained representation in the previous step in the input for classification.
+See an example in the<a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb"> notebooks</a>.
 
 <b>Command line use:</b> Argument to be used are the X and Y, the classification algorithm (SVM, or RF), output directory as well as number of cores to be used. Use argument '-h' to see the helpers.
 
-The following command will do tuning the parameters as well as evaluation within a 10xFold corss-validation scheme. Details on how to parse the results (scores, confusion matrix, best estimator, etc) is provided <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb" > here</a>.
+The following command will do tuning the parameters as well as evaluation within a 10xFold corss-validation scheme. Details on how to parse the results (scores, confusion matrix, best estimator, etc) are provided <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/3.%20Classification_classical_classifiers.ipynb"> here</a>.
 
 ```
 python3 micropheno.py --train_predictor --model RF (or SVM) --x k-mer.npz --y labels_phenotypes.txt --cores 20 --name test_crohn  --out output_dir/
 ```
 
 <h2>Classification with Deep Neural Network</h2>
+We use the Multi-Layer-Perceptrons (MLP) Neural Network architecture with several hidden layers using Rectified Linear Unit (ReLU) as the nonlinear activation function. We use softmax activation function at the last layer to produce the probability vector that can be regarded as representing posterior probabilities (Goodfellow-et-al-2016). To avoid overfitting we perform early stopping and also use dropout at hidden layers (Srivastava2014). A schematic visualization of our Neural Networks is depicted in the Figure.
 
- We use the Multi-Layer-Perceptrons (MLP) Neural Network architecture with several hidden layers using Rectified Linear Unit (ReLU) as the nonlinear activation function. We use softmax activation function at the last layer to produce the probability vector that can be regarded as representing posterior probabilities (Goodfellow-et-al-2016). To avoid overfitting we perform early stopping and also use dropout at hidden layers (Srivastava2014). A schematic visualization of our Neural Networks is depicted in the Figure.
-
-![dnn](https://user-images.githubusercontent.com/8551117/35446216-4ec1eb7c-02b4-11e8-9421-043ec1f9ed96.png)
+<img src="https://user-images.githubusercontent.com/8551117/35446216-4ec1eb7c-02b4-11e8-9421-043ec1f9ed96.png" alt="dnn" />
 
 Our objective is minimizing the loss, i.e. cross entropy between output and the one-hot vector representation of the target class. The error (the distance between the output and the target) is used to update the network parameters via a Back-propagation algorithm using Adaptive Moment Estimation (Adam) as optimizer (Kingma2015).
 
-You can see an example in the notebooks <a href='https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/4.%20Classification%20Deep%20Learning.ipynb'>here</a>, showing how to see the learning curves and also getting the activation function of the neural network from the trained model.
+You can see an example in the notebooks <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/4.%20Classification%20Deep%20Learning.ipynb">here</a>, showing how to see the learning curves and also getting the activation function of the neural network from the trained model.
 
 <b>Command line use:</b> Argument to be used are the X and Y, the DNN flag, the neural network architecture (hidden-sizes and dropouts), batch size, number of epochs, output directory as well as the GPU id to be used. Use argument '-h' to see the helpers.
 
@@ -109,7 +120,6 @@ python3 micropheno.py --train_predictor --model DNN --arch  --batchsize 10 --epo
 <h2>Visualization</h2>
 
 An example of visualization using PCA, t-SNE, as well as t-SNE over the activation function of the last layer of the neural network is provided in <a href="https://github.com/ehsanasgari/MicroPheno/blob/master/notebooks/5.%20Visualization.ipynb">this notebook</a>.
-
 
 
 ![vis](https://user-images.githubusercontent.com/8551117/35447281-8f58b064-02b7-11e8-9a97-affe35573ba5.png)
