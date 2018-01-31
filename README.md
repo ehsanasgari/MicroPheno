@@ -114,7 +114,7 @@ You can see an example in the notebooks <a href="https://github.com/ehsanasgari/
 <b>Command line use:</b> Argument to be used are the X and Y, the DNN flag, the neural network architecture (hidden-sizes and dropouts), batch size, number of epochs, output directory as well as the GPU id to be used. Use argument '-h' to see the helpers.
 
 ```
-python3 micropheno.py --train_predictor --model DNN --arch  --batchsize 10 --epochs  100 --x k-mer.npz --y labels_phenotypes.txt --name test_crohn  --out output_dir/
+python3 micropheno.py --train_predictor --model DNN --arch 1024,0.2,512,0.1,128,64 --batchsize 10 --epochs  100 --x k-mer.npz --y labels_phenotypes.txt --name test_crohn  --out output_dir/
 ```
 
 
