@@ -15,7 +15,7 @@
 
 <span style="color: #800000;"><strong>MicroPheno's paper is still under review. Please cite the <a style="color: #800000;" href="https://www.biorxiv.org/content/early/2018/01/28/255018">bioarXiv</a> version  <a href="https://www.biorxiv.org/highwire/citation/78275/bibtext"><img class="alignnone wp-image-142" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/bibtex-icon.png" alt="" width="44" height="44" /></a> <a href="https://www.biorxiv.org/highwire/citation/78275/mendeley"><img class="alignnone wp-image-143" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Apps-Mendeley-icon-150x150.png" alt="" width="47" height="41" /></a>:
  
-Asgari E, Garakani K, McHardy AC and Mofrad MRK, MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples. bioRxiv, 2018. Available at: https://www.biorxiv.org/content/early/2018/01/28/255018.
+Asgari E, Garakani K, McHardy AC and Mofrad MRK, MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples. bioRxiv, 2018. Available at: https://www.biorxiv.org/content/early/2018/01/31/255018.
 
 
  
@@ -50,7 +50,7 @@ MicroPheno is implemented in Python3.x and uses ScikitLearn and Keras frameworks
 pip install -r requirements.txt
 ```
 
-Please cite the <a style="color: #800000;" href="https://www.biorxiv.org/content/early/2018/01/28/255018">bioarXiv</a> version  <a href="https://www.biorxiv.org/highwire/citation/78275/bibtext"><img class="alignnone wp-image-142" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/bibtex-icon.png" alt="" width="44" height="44" /></a> <a href="https://www.biorxiv.org/highwire/citation/78275/mendeley"><img class="alignnone wp-image-143" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Apps-Mendeley-icon-150x150.png" alt="" width="47" height="41" /></a>
+Please cite the <a style="color: #800000;" href="https://www.biorxiv.org/content/early/2018/01/31/255018">bioarXiv</a> version  <a href="https://www.biorxiv.org/highwire/citation/78275/bibtext"><img class="alignnone wp-image-142" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/bibtex-icon.png" alt="" width="44" height="44" /></a> <a href="https://www.biorxiv.org/highwire/citation/78275/mendeley"><img class="alignnone wp-image-143" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Apps-Mendeley-icon-150x150.png" alt="" width="47" height="41" /></a>
 
 ```
 @article {Asgari255018,
@@ -59,8 +59,8 @@ Please cite the <a style="color: #800000;" href="https://www.biorxiv.org/content
 	year = {2018},
 	doi = {10.1101/255018},
 	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2018/01/28/255018},
-	eprint = {https://www.biorxiv.org/content/early/2018/01/28/255018.full.pdf},
+	URL = {https://www.biorxiv.org/content/early/2018/01/31/255018},
+	eprint = {https://www.biorxiv.org/content/early/2018/01/31/255018.full.pdf},
 	journal = {bioRxiv}
 }
 
