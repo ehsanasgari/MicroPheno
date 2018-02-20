@@ -224,7 +224,7 @@ def checkArgs(args):
                 return err
 
             if not parsedArgs.data_name:
-                parsedArgs.data_name = parsedArgs.input_dir_bootstrapping.split('/')[-1]
+                parsedArgs.data_name = parsedArgs.genrep_input_addr.split('/')[-1]
 
             try:
                 sampling_dict = dict()
