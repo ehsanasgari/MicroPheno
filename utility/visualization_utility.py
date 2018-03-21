@@ -14,7 +14,6 @@ sys.path.append('../')
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from utility.file_utility import FileUtility
-from utility.visualization_utility import plot_scatter
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
