@@ -137,12 +137,12 @@ class DNNMutliclass16S(object):
             history = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size,shuffle=True, validation_data=(X_valid, y_valid), verbose=0)
             pred=model.predict_classes(X_valid)
             # score-calculations
-            f1_micro.append(f1_score(pred, y_class_valid, average='micro'))
-            f1_macro.append(f1_score(pred, y_class_valid, average='macro'))
-            p_micro.append(precision_score(pred, y_class_valid, average='micro'))
-            p_macro.append(precision_score(pred, y_class_valid, average='macro'))
-            r_micro.append(recall_score(pred, y_class_valid, average='micro'))
-            r_macro.append(recall_score(pred, y_class_valid, average='macro'))
+            f1_micro.append(f1_score(y_class_valid,pred, average='micro'))
+            f1_macro.append(f1_score(y_class_valid,pred, average='macro'))
+            p_micro.append(precision_score(y_class_valid,pred, average='micro'))
+            p_macro.append(precision_score(y_class_valid,pred, average='macro'))
+            r_micro.append(recall_score(y_class_valid,pred, average='micro'))
+            r_macro.append(recall_score(y_class_valid,pred, average='macro'))
 
         # mean values
         f1mac=np.mean(f1_macro)
