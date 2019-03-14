@@ -15,6 +15,7 @@
  
  <br/>
  <b>Reference</b>
+ <br/>
 Asgari, E., Garakani, K., McHardy, A. C., & Mofrad, M. R. (2018). MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples. Bioinformatics, 34(13), i32-i42.
 
  
