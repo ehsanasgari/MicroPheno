@@ -12,11 +12,8 @@
 </tr>
 </tbody>
 </table>
-
-<span style="color: #800000;"><strong>MicroPheno's paper is accepted at ISMB 2018 to be published in Bioinformatics Journal. Please cite the <a style="color: #800000;" href="https://www.biorxiv.org/content/early/2018/01/28/255018">bioarXiv</a> version  <a href="https://www.biorxiv.org/highwire/citation/78275/bibtext"><img class="alignnone wp-image-142" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/bibtex-icon.png" alt="" width="44" height="44" /></a> <a href="https://www.biorxiv.org/highwire/citation/78275/mendeley"><img class="alignnone wp-image-143" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/Apps-Mendeley-icon-150x150.png" alt="" width="47" height="41" /></a>:
  
-Asgari E, Garakani K, McHardy AC and Mofrad MRK, MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples. bioRxiv, 2018. Available at: https://www.biorxiv.org/content/early/2018/01/31/255018.
-
+Asgari, E., Garakani, K., McHardy, A. C., & Mofrad, M. R. (2018). MicroPheno: Predicting environments and host phenotypes from 16S rRNA gene sequencing using a k-mer based representation of shallow sub-samples. Bioinformatics, 34(13), i32-i42.
 
  
  The datasets </strong> are also available for download <a href='http://llp.berkeley.edu/micropheno'><img class="alignnone wp-image-36" src="http://llp.berkeley.edu/wp-content/uploads/2018/01/zip.png" alt="" width="33" height="33" /></a>.
